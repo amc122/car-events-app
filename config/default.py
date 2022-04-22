@@ -13,4 +13,4 @@ DATASET_VERSION = 'default'
 ######################
 # feature extraction #
 ######################
-FEATEXT_METHODS = ['Spectrogram', 'MelSpectrogram', 'MFCC']
+#FEATEXT_METHODS = ['Spectrogram', 'MelSpectrogram', 'MFCC']

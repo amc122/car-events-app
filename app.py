@@ -11,7 +11,7 @@ from plotly.subplots import make_subplots
 from dash import Dash, dcc, html, Input, Output
 
 import config.default as cfg
-from utils import extract, metadata
+from utils import extract, metadata, featext
 
 app = Dash(__name__)
 
@@ -111,42 +111,58 @@ app.layout = html.Div([
             html.Label('Method'),
             dcc.Dropdown(
                 id='dropdown-featext_method',
-                options=cfg.FEATEXT_METHODS,
-                value=cfg.FEATEXT_METHODS[0]
+                options=featext.FEATEXT_METHODS,
+                value=featext.FEATEXT_METHODS[0]
             )
-        ], style={'width':'15%', 'padding':5, 'display':'inline-block'}),
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
+        html.Div([
+            html.Label('Sample rate'),
+            dcc.Dropdown(
+                id='dropdown-featext_sample_rate',
+                options=[256, 512, 1024],
+                value=256
+            )
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
         html.Div([
             html.Label('Num. points FFT'),
             dcc.Dropdown(
                 id='dropdown-featext_n_fft',
                 options=[256, 512, 1024],
-                value=256
+                value=512
             )
-        ], style={'width':'15%', 'padding':5, 'display':'inline-block'}),
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
         html.Div([
             html.Label('Window length'),
             dcc.Dropdown(
                 id='dropdown-featext_win_length',
                 options=[256, 512, 1024],
-                value=256
+                value=512
             )
-        ], style={'width':'15%', 'padding':5, 'display':'inline-block'}),
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
         html.Div([
             html.Label('Hop length'),
             dcc.Dropdown(
                 id='dropdown-featext_hop_length',
-                options=[256, 512, 1024],
-                value=256
+                options=[128, 256, 384, 512, 640, 768],
+                value=384
             )
-        ], style={'width':'15%', 'padding':5, 'display':'inline-block'}),
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
         html.Div([
-            html.Label('Num. mels'),
+            html.Label('Num. filters'),
             dcc.Dropdown(
-                id='dropdown-featext_n_mels',
-                options=[256, 512, 1024],
-                value=256
+                id='dropdown-featext_n_filter',
+                options=[32, 64, 128],
+                value=128
             )
-        ], style={'width':'15%', 'padding':5, 'display':'inline-block'}),
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
+        html.Div([
+            html.Label('Num. FCC'),
+            dcc.Dropdown(
+                id='dropdown-featext_n_fcc',
+                options=[20, 40, 60, 80],
+                value=40
+            )
+        ], style={'width':'12%', 'padding':5, 'display':'inline-block'}),
         html.Div([
             dcc.Graph(id='wave-plot')
         ]),
@@ -182,17 +198,25 @@ def update_audio_player(audio_src, file_class, file_name):
 
 
 @app.callback(
-    Output('wave-plot'                 , 'figure'),
-    Input('dropdown-class'             , 'value'),
-    Input('dropdown-file_name'         , 'value'))
-def update_wave_plot(file_class, file_name):
-    fig = go.Figure()
+    Output('wave-plot'                  , 'figure'),
+    Input('dropdown-class'              , 'value'),
+    Input('dropdown-file_name'          , 'value'),
+    Input('dropdown-featext_method'     , 'value'),
+    Input('dropdown-featext_sample_rate', 'value'),
+    Input('dropdown-featext_n_fft'      , 'value'),
+    Input('dropdown-featext_win_length' , 'value'),
+    Input('dropdown-featext_hop_length' , 'value'),
+    Input('dropdown-featext_n_filter'   , 'value'),
+    Input('dropdown-featext_n_fcc'      , 'value'))
+def update_wave_plot(file_class, file_name, featext_method, sample_rate, n_fft, win_length, hop_length, n_filter, n_fcc):
+    fig = make_subplots(rows=2, cols=1,
+        specs=[[{'type': 'xy'}], [{'type': 'xy'}]],
+        subplot_titles=['Wave', 'Features'])
     fig.update_layout(
-        title='Wave',
         xaxis_title='time (s)',
         yaxis_title='wave',
         margin=dict(l=20, r=20, t=30, b=30),
-        height=200)
+        height=600)
     if (file_class is None) or (file_name is None):
         return fig
     else:
@@ -203,8 +227,23 @@ def update_wave_plot(file_class, file_name):
                 go.Scatter(
                     x=torch.arange(wave.shape[1])/sample_rate, 
                     y=wave[0,:], 
-                    mode='lines')
-            )
+                    mode='lines'),
+                row=1, col=1)
+
+            fig.add_trace(
+                go.Scatter(
+                    x=torch.arange(wave.shape[1])/sample_rate, 
+                    y=wave[0,:], 
+                    mode='lines'),
+                row=2, col=1)
+
+        feature_extractor = featext.get_featext(featext_method, 
+            sample_rate=sample_rate,
+            n_fft=n_fft, 
+            win_length=win_length,
+            hop_length=hop_length,
+            n_filter=n_filter)
+        
         return fig
 
 
