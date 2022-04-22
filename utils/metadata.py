@@ -27,11 +27,11 @@ def build_metadata(dir):
     # calculate duration
     df['duration'] = df['num_frames'] / df['sample_rate']
     # calculate power
-    #pows = torch.zeros(len(df))
-    # for i, file_path in enumerate(df['file_path']):
-    #     waveform, sample_rate = torchaudio.load(file_path)
-    #     meanval = waveform.mean()
-    #     pows[i] = ((waveform - meanval)**2.0).mean().item()
-    #df['power'] = pows
+    pows = torch.zeros(len(df))
+    for i, file_path in enumerate(df['file_path']):
+        waveform, sample_rate = torchaudio.load(file_path)
+        meanval = waveform.mean()
+        pows[i] = ((waveform - meanval)**2.0).mean().item()
+    df['power'] = pows
 
     return df
