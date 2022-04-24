@@ -4,6 +4,8 @@ import torch
 import torchaudio
 
 def build_metadata(dir):
+    if dir[-1] != '/':
+        dir += '/'
     class_names = os.listdir(dir) # a class per folder
     file_names = [os.listdir(os.path.join(dir, subdir)) for subdir in class_names]
     # build basic metadata dataframe including class and file_name
@@ -16,7 +18,7 @@ def build_metadata(dir):
         })
     df = pd.concat([df_dict[class_name] for class_name in class_names], ignore_index=True)
     # calculate paths based on class and file_name
-    df['file_path'] = 'dataset/' + df['class'] + '/' + df['file_name']
+    df['file_path'] = dir + df['class'] + '/' + df['file_name']
     # new columns with names matching torchvision.info attributes
     file_infos = [torchaudio.info(file_path) for file_path in df['file_path']]
     df['sample_rate'] = [file_info.sample_rate for file_info in file_infos]

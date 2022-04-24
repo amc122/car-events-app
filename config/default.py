@@ -6,7 +6,7 @@ COMPRESSED_DATA_VERSION = 'latest'
 
 CLASS_NAMES = []
 
-DATASET_PATH = 'dataset'
+DATASET_PATH = 'assets/dataset'
 DATASET_VERSION = 'default'
 
 
