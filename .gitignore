@@ -1,0 +1,5 @@
+activate.sh
+tmp/
+assets/audio-player/tmp/
+dataset/
+*__pycache__*
