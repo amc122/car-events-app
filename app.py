@@ -8,15 +8,16 @@ import plotly.express as px
 
 from plotly.subplots import make_subplots
 
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, html, dcc, Input, Output
+from dash_bootstrap_components import themes
 
 import config.default as cfg
 import views
 import callbacks
 from utils import extract, metadata, featext
 
-app = Dash(__name__)
-
+app = Dash(__name__, external_stylesheets=[themes.BOOTSTRAP])
+app.config['suppress_callback_exceptions'] = True
 
 
 # TODO: move app setup to a different file
@@ -49,8 +50,12 @@ fig_power_histogram = px.histogram(df, x='power', color='class', title='Power hi
 fig_power_histogram.update_layout(legend=legend, margin=margin, height=height)
 
 
-# TODO: move layout to a different file
-app.layout = views.index_view(
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
+
+index_layout = views.index_view(
     fig_class_histogram=fig_class_histogram, 
     fig_duration_histogram=fig_duration_histogram, 
     fig_power_histogram=fig_power_histogram,
@@ -58,10 +63,26 @@ app.layout = views.index_view(
     file_names=df['file_name'].loc[df['class'] == cfg.CLASS_NAMES[0]], 
     featext_methods=featext.FEATEXT_METHODS
 )
+augmentation_layout = views.augmentation_view()
+
 
 
 callbacks.index_callbacks(app, cfg, df)
 
 
+@app.callback(
+    Output('page-content', 'children'),
+    Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == '/':
+        return index_layout
+    elif pathname == '/augmentation':
+        return augmentation_layout
+    else:
+        return index_layout
+
+
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_hot_reload=False)
+    app.run_server(
+        debug=True,
+        dev_tools_hot_reload=False)

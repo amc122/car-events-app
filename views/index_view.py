@@ -1,14 +1,27 @@
-from dash import dcc, html
+from dash import html, dcc
+import dash_bootstrap_components as dbc
 from views import common
 
 def index_view(fig_class_histogram, fig_duration_histogram, fig_power_histogram,
     class_names, file_names, featext_methods):
+
+    class_names_options = [{'label': cn, 'value': cn} for cn in class_names]
+
     return html.Div([
         common.header('Audio data explorer',
             '''
-            A web application for audio data visualization and training with data augmentation
+            A web application for audio data visualization and training with data augmentation.
             '''
         ),
+        html.Div([
+            html.H2('Overview'),
+            html.P(
+                '''
+                This page provides information about the selected dataset and is utilized to setup the next steps, 
+                i.e. data augmentation and/or data preparation.
+                '''
+            )
+        ]),
         html.Div([
             html.H2('Metadata inspection'),
             html.Div([
@@ -128,9 +141,9 @@ def index_view(fig_class_histogram, fig_duration_histogram, fig_power_histogram,
                 html.H3('Classifier classes'),
                 html.P('Select classes included as classifier outputs'),
                 html.Div([
-                    dcc.Checklist(
+                    dbc.Checklist(
                         id='checklist-classifier_classes',
-                        options=class_names,
+                        options=class_names_options,
                         value=class_names
                     )
                 ])
@@ -140,19 +153,32 @@ def index_view(fig_class_histogram, fig_duration_histogram, fig_power_histogram,
                 html.H3('Background classes'),
                 html.P('Select classes included as classifier outputs'),
                 html.Div([
-                    dcc.Checklist(
+                    dbc.Checklist(
                         id='checklist-background_classes',
-                        options=class_names,
+                        options=class_names_options,
                         value=[]
                     )
                 ])
             ], style={'width':'40%', 'padding-left':'5%', 'display':'inline-block'}),
 
             html.Div([
-                html.Button('Start data augmentation', id='submit-index2aug', n_clicks=0)
-            ])
+                html.H3('Next step'),
+                html.P('Select yout next step'),
+                dcc.Link(
+                    dbc.Button('Data augmentation', 
+                        id='submit-index2aug', 
+                        color='primary', 
+                        className='me-1'
+                    ), href='/augmentation'
+                ),
+                dbc.Button('Data preparation', 
+                    id='submit-index2preparation', 
+                    color='primary', 
+                    className='me-1'
+                )
+            ], style={'padding-top':20, 'padding-bottom':20})
 
         ]),
 
 
-    ], style={'width':common.PAGE_WIDTH, 'padding-left':'5%', 'padding-right':'5%'})
+    ], style={'width':common.PAGE_WIDTH, 'padding-left':'5%', 'padding-right':'5%', 'padding-bottom':200})
