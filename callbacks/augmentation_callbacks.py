@@ -1,4 +1,4 @@
-from dash import Input, Output
+from dash import Input, Output, State
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
@@ -8,10 +8,12 @@ def _white_noise_children():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.Label('SNR (dB)'),
-                    html.Br(),
+                    html.Div([
+                        html.Label('SNR (dB)'),
+                        html.Br()
+                    ]),
                     dcc.Input(
-                        id='input-white_noise_snr',
+                        id='arg-white_noise_snr',
                         type='number',
                         placeholder='Enter a number'
                     )
@@ -26,10 +28,12 @@ def _background_noise_children():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.Label('SNR (dB)'),
-                    html.Br(),
+                    html.Div([
+                        html.Label('SNR (dB)'),
+                        html.Br()
+                    ]),
                     dcc.Input(
-                        id='input-background_noise_snr',
+                        id='arg-background_noise_snr',
                         type='number',
                         placeholder='Enter a number'
                     )
@@ -39,7 +43,7 @@ def _background_noise_children():
                 html.Div([
                     html.Label('Background class'),
                     dcc.Dropdown(
-                        id='dropdown-background_noise_class',
+                        id='arg-background_noise_class',
                         options=['a', 'b'],
                         value='a'
                     )
@@ -54,10 +58,12 @@ def _gain_children():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.Label('Gain factor'),
-                    html.Br(),
+                    html.Div([
+                        html.Label('Gain factor'),
+                        html.Br()
+                    ]),
                     dcc.Input(
-                        id='input-gain_factor',
+                        id='arg-gain_factor',
                         type='number',
                         placeholder='Enter a number'
                     )
@@ -72,10 +78,12 @@ def _time_shift_children():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.Label('Maximum shift'),
-                    html.Br(),
+                    html.Div([
+                        html.Label('Maximum shift'),
+                        html.Br()
+                    ]),
                     dcc.Input(
-                        id='input-time_shift_max_shift',
+                        id='arg-time_shift_max_shift',
                         type='number',
                         placeholder='Enter a number'
                     )
@@ -85,7 +93,7 @@ def _time_shift_children():
                 html.Div([
                     html.Label('Background class'),
                     dcc.Dropdown(
-                        id='dropdown-time_shift_shift_direction',
+                        id='arg-time_shift_shift_direction',
                         options=['right', 'left', 'both'],
                         value='both'
                     )
@@ -102,7 +110,7 @@ def _pitch_children():
                 html.Div([
                     html.Label('Fractional steps'),
                     dcc.Dropdown(
-                        id='dropdown-pitch_fractional_steps',
+                        id='arg-pitch_fractional_steps',
                         options=[-3, -2, -1, 1, 2, 3],
                         value=1
                     )
@@ -117,10 +125,12 @@ def _speed_children():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.Label('Speed factor'),
-                    html.Br(),
+                    html.Div([
+                        html.Label('Speed factor'),
+                        html.Br()
+                    ]),
                     dcc.Input(
-                        id='input-speed_factor',
+                        id='arg-speed_factor',
                         type='number',
                         placeholder='Enter a number'
                     )
@@ -130,9 +140,8 @@ def _speed_children():
     ], style={'width':220})
 
 
-
-def _otherwise():
-    return []
+def _list_row_children():
+    pass
 
 
 def augmentation_callbacks(app, cfg):
@@ -154,4 +163,24 @@ def augmentation_callbacks(app, cfg):
         elif method == 'Speed':
             return _speed_children()
         else:
-            return _otherwise()
+            return []
+
+
+    @app.callback(
+        Output('content-augmentation_list', 'children'),
+        State('content-augmentation_list', 'children'),
+        State('dropdown-augmentation_method', 'value'),
+        State('content-augmentation_arguments', 'children'),
+        Input('submit-augmentation_add2list', 'n_clicks'))
+    def update_augmentation_list(augmentations, method, all_args, submit):
+        if (method is not None) and (all_args is not None):
+            aux = all_args['props']['children'][0]['props']['children']
+            n_args = len(aux)
+            kwargs = {}
+            for i in range(n_args):
+                aux2 = aux[i]['props']['children'][0]['props']['children'][1]['props']
+                kwargs[aux2['id']] = aux2['value']
+            
+            print(kwargs)
+            print(submit)
+        return []

@@ -20,11 +20,13 @@ DATASET_VERSION = 'default'
 ################
 # augmentation #
 ################
-AUGMENTATION_METHODS = [
-    'White noise',
-    'Background noise',
-    'Gain',
-    'Time shift',
-    'Pitch',
-    'Speed'
-]
+AUGMENTATION_METHODS_DICT = {
+    'White noise'      : 'white_noise',
+    'Background noise' : 'background_noise',
+    'Gain'             : 'gain',
+    'Time shift'       : 'time_shift',
+    'Pitch'            : 'pitch',
+    'Speed'            : 'speed'
+}
+AUGMENTATION_METHODS = list(AUGMENTATION_METHODS_DICT.keys())
+AUGMENTATION_IDS = list(AUGMENTATION_METHODS_DICT.values())
