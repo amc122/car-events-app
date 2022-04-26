@@ -1,6 +1,7 @@
 import torch
 from torchaudio.transforms import Spectrogram, MelSpectrogram, MFCC, LFCC
 
+
 FEATEXT_METHODS = [
     'Spectrogram',
     'MelSpectrogram',

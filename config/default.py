@@ -14,3 +14,17 @@ DATASET_VERSION = 'default'
 # feature extraction #
 ######################
 #FEATEXT_METHODS = ['Spectrogram', 'MelSpectrogram', 'MFCC']
+
+
+
+################
+# augmentation #
+################
+AUGMENTATION_METHODS = [
+    'White noise',
+    'Background noise',
+    'Gain',
+    'Time shift',
+    'Pitch',
+    'Speed'
+]

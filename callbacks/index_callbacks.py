@@ -8,9 +8,6 @@ from dash import Input, Output
 from utils import featext
 
 def index_callbacks(app, cfg, df):
-    # @app.callback(
-    #     Output('index-content'))
-
 
     @app.callback(
         Output('dropdown-file_name', 'options'),

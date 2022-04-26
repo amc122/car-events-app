@@ -63,12 +63,12 @@ index_layout = views.index_view(
     file_names=df['file_name'].loc[df['class'] == cfg.CLASS_NAMES[0]], 
     featext_methods=featext.FEATEXT_METHODS
 )
-augmentation_layout = views.augmentation_view()
+augmentation_layout = views.augmentation_view(cfg.AUGMENTATION_METHODS)
 
 
 
 callbacks.index_callbacks(app, cfg, df)
-
+callbacks.augmentation_callbacks(app, cfg)
 
 @app.callback(
     Output('page-content', 'children'),
