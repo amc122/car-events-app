@@ -1,4 +1,5 @@
 activate.sh
+env/
 tmp/
 cache/
 assets/dataset/

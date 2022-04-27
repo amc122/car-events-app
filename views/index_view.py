@@ -160,7 +160,7 @@ def _audio_data_inspection_and_setup(class_names, file_names, featext_methods):
 
         html.Div([
             html.H3('Next step'),
-            html.P('Select yout next step'),
+            html.P('Select your next step'),
             dcc.Link(
                 dbc.Button('Data augmentation', 
                     id='submit-index2aug', 
@@ -173,7 +173,7 @@ def _audio_data_inspection_and_setup(class_names, file_names, featext_methods):
                 color='primary', 
                 className='me-1'
             )
-        ], style={'padding-top':20, 'padding-bottom':20})
+        ], style={'padding-top':20, 'padding-bottom':20}),
     ])
 
 

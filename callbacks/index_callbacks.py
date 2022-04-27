@@ -3,11 +3,13 @@ import torch
 import torchaudio
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from dash import Input, Output
+from dash import Input, Output, State
 
 from utils import featext
 
+
 def index_callbacks(app, cfg, df):
+
 
     @app.callback(
         Output('dropdown-file_name', 'options'),
@@ -76,3 +78,13 @@ def index_callbacks(app, cfg, df):
                     row=2, col=1)
             
             return fig
+
+
+    @app.callback(
+        Output('memory-classifier_classes', 'data'),
+        Output('memory-background_classes', 'data'),
+        State('checklist-classifier_classes', 'value'),
+        State('checklist-background_classes', 'value'),
+        Input('submit-index2aug', 'n_clicks'))
+    def update_cache_classifier_classes(classifier_classes, background_classes, n_clicks):
+        return classifier_classes, background_classes

@@ -1,4 +1,4 @@
-from dash import html
+from dash import html, dcc
 
 
 TITLE = 'Audio data preprocessing'
@@ -15,6 +15,14 @@ def header(title, text):
             children=[html.Div(title, className='app-header--title')]
         ),
         html.Div([text], style={'padding-top': 20, 'padding-bottom':20})
+    ])
+
+
+def storage():
+    return html.Div([
+        dcc.Store(id='memory-classifier_classes', data=[], storage_type='local'),
+        dcc.Store(id='memory-background_classes', data=[], storage_type='local'),
+        dcc.Store(id='memory-augmentation_list', data=[], storage_type='local'),
     ])
 
 

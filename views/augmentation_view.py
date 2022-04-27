@@ -43,15 +43,45 @@ def augmentation_view(augmentation_options):
                 id='submit-augmentation_add2list',
                 color='primary',
                 className='me-1'    
+            ),
+            dbc.Button('Clear list',
+                id='submit-augmentation_clear_list',
+                color='danger',
+                className='me-1'
             )
         ], style={'padding':5}),
+        html.Div(id='alert-augmentation', style={'padding':5}),
 
         html.Br(),
+
+        html.Div(id='dummy', style={'display':'none'}),
 
         html.Div([
             html.H2('List of included augmentation methods'),
             html.Br(),
             html.Div(id='content-augmentation_list')
-        ])
+        ]),
+
+        html.Div([
+            html.H2('TODO: Set an augmentation weight for each class'),
+            html.Br(),
+            html.Div(id='content-augmentation_weights')
+        ]),
+
+        html.Div([
+            dcc.Loading(
+                id='loading-augmentation',
+                type='default',
+                children=html.Div(id='loading-augmentation_output')
+            )
+        ], style={'padding':5}),
+
+        html.Div([
+            dbc.Button('Start data augmentation',
+                id='submit-augmentation_start',
+                color='primary',
+                className='me-1'
+            )
+        ], style={'padding':5})
 
     ], style={'width':common.PAGE_WIDTH, 'padding-left':'5%', 'padding-right':'5%', 'padding-top':50, 'padding-bottom':200})

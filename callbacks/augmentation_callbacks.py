@@ -1,6 +1,31 @@
+import time
+import os
 from dash import Input, Output, State
-from dash import html, dcc
+from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
+
+from AudioDataAugmentator import AudioDataAugmentator
+
+
+AUGMENTATION_READABLE_ARGS_DICT = {
+    'arg-white_noise_snr'            : 'SNR (dB)',
+    'arg-background_noise_snr'       : 'SNR (dB)',
+    'arg-background_noise_class'     : 'Background class',
+    'arg-gain_factor'                : 'Gain factor',
+    'arg-time_shift_max_shift'       : 'Maximum shift',
+    'arg-time_shift_shift_direction' : 'Shift direction',
+    'arg-pitch_fractional_steps'     : 'Fractional steps',
+    'arg-speed_factor'               : 'Speed factor'
+}
+
+AUGMENTATION_READABLE_METHODS_DICT_R = {
+    'White noise'      : 'noise_injection',
+    'Background noise' : 'background_injection',
+    'Gain'             : 'gain_change',
+    'Time shift'       : 'time_shift',
+    'Pitch'            : 'pitch_change',
+    'Speed'            : 'speed_change'
+}
 
 
 def _white_noise_children():
@@ -23,7 +48,7 @@ def _white_noise_children():
     ], style={'width':220})
 
 
-def _background_noise_children():
+def _background_noise_children(background_classes):
     return html.Div([
         dbc.Row([
             dbc.Col([
@@ -44,8 +69,8 @@ def _background_noise_children():
                     html.Label('Background class'),
                     dcc.Dropdown(
                         id='arg-background_noise_class',
-                        options=['a', 'b'],
-                        value='a'
+                        options=background_classes,
+                        value=None
                     )
                 ], style={'width':200, 'padding':5, 'display':'inline-block'})
             ])
@@ -91,7 +116,7 @@ def _time_shift_children():
             ]),
             dbc.Col([
                 html.Div([
-                    html.Label('Background class'),
+                    html.Label('Shift direction'),
                     dcc.Dropdown(
                         id='arg-time_shift_shift_direction',
                         options=['right', 'left', 'both'],
@@ -140,20 +165,32 @@ def _speed_children():
     ], style={'width':220})
 
 
-def _list_row_children():
-    pass
+# this is a format adapter for the augmentation_list
+# TODO: modify AudioDataAugmentator so that no wrapper is needed
+def _ada_augmentation_sequence(augmentation_list):
+    sequence = []
+    for ae in augmentation_list:
+        m = list(ae.keys())[0] # the method (this is a string)
+        a = list(ae.values())[0] # the arguments (this is a dict)
+        # TODO: the following line needs to be generalized...
+        if AUGMENTATION_READABLE_METHODS_DICT_R[m] == 'noise_injection':
+            sequence += [[AUGMENTATION_READABLE_METHODS_DICT_R[m], [av for av in a.values()] + ['white']]] # assume correct argument ordering...
+        else:
+            sequence += [[AUGMENTATION_READABLE_METHODS_DICT_R[m], [av for av in a.values()]]] # assume correct argument ordering...
+    return sequence
 
 
 def augmentation_callbacks(app, cfg):
 
     @app.callback(
         Output('content-augmentation_arguments', 'children'),
-        Input('dropdown-augmentation_method', 'value'))
-    def update_augmentation_arguments(method):
+        Input('dropdown-augmentation_method', 'value'),
+        State('memory-background_classes', 'data'))
+    def update_augmentation_arguments(method, background_classes):
         if method == 'White noise':
             return _white_noise_children()
         elif method == 'Background noise':
-            return _background_noise_children()
+            return _background_noise_children(background_classes)
         elif method == 'Gain':
             return _gain_children()
         elif method == 'Time shift':
@@ -167,20 +204,97 @@ def augmentation_callbacks(app, cfg):
 
 
     @app.callback(
+        Output('memory-augmentation_list', 'data'),
         Output('content-augmentation_list', 'children'),
-        State('content-augmentation_list', 'children'),
+        Output('alert-augmentation', 'children'),
+        Output('submit-augmentation_add2list', 'n_clicks'),
+        Output('submit-augmentation_clear_list', 'n_clicks'),
+        State('memory-augmentation_list', 'data'),
         State('dropdown-augmentation_method', 'value'),
         State('content-augmentation_arguments', 'children'),
-        Input('submit-augmentation_add2list', 'n_clicks'))
-    def update_augmentation_list(augmentations, method, all_args, submit):
-        if (method is not None) and (all_args is not None):
-            aux = all_args['props']['children'][0]['props']['children']
-            n_args = len(aux)
-            kwargs = {}
-            for i in range(n_args):
-                aux2 = aux[i]['props']['children'][0]['props']['children'][1]['props']
-                kwargs[aux2['id']] = aux2['value']
+        Input('submit-augmentation_add2list', 'n_clicks'),
+        Input('submit-augmentation_clear_list', 'n_clicks'))
+    def update_augmentation_list(augmentation_list, method, all_args, n_clicks_add, n_clicks_clear):
+        
+        if n_clicks_add is None:
+            n_clicks_add = 0
+        if n_clicks_clear is None:
+            n_clicks_clear = 0
+
+        do_add = n_clicks_add > 0
+        do_clear = n_clicks_clear > 0
+
+        if do_add:
+            new_augmentation_list = augmentation_list
+        else:
+            new_augmentation_list = []
+            content_augmentation_list = []
+        alert = []
+
+        if do_add:
+            if (method is not None) and (all_args is not None):
+                aux = all_args['props']['children'][0]['props']['children']
+                n_args = len(aux)
+                kwargs = {}
+                for i in range(n_args):
+                    aux2 = aux[i]['props']['children'][0]['props']['children'][1]['props']
+                    if 'value' in aux2.keys():
+                        kwargs[aux2['id']] = aux2['value']
+                    else:
+                        kwargs['_'] = None
+
+                # execute only if argument fields are filled with not None values
+                if not any(kwargs[key] is None for key in kwargs.keys()):
+                    new_augmentation_list += [{method:kwargs}]
             
-            print(kwargs)
-            print(submit)
-        return []
+                else:
+                    alert = dbc.Alert('Please, fill all the input fields', color='warning')
+            
+            content_augmentation_list = []
+            for i, ae in enumerate(new_augmentation_list):
+                m = list(ae.keys())[0]
+                a = list(ae.values())[0]
+                content_augmentation_list += [dbc.Row([
+                    dbc.Col([
+                        html.B(f'{i+1}: {m}'),
+                        html.Div(
+                            [dbc.Row([ dbc.Col(AUGMENTATION_READABLE_ARGS_DICT[ka]), dbc.Col(f'{va}') ]) for ka, va in a.items()],
+                            style={'width':'50%'}
+                        ),
+                        html.Br()
+                    ])
+                ])]
+
+        return new_augmentation_list, content_augmentation_list, alert, 0, 0
+
+
+    @app.callback(
+        Output('loading-augmentation_output', 'children'),
+        State('memory-classifier_classes', 'data'),
+        State('memory-augmentation_list', 'data'),
+        Input('submit-augmentation_start', 'n_clicks'))
+    def start_augmentation(classifier_classes, augmentation_list, n_clicks):
+        condition = n_clicks is not None
+        if condition:
+            condition = n_clicks == 1
+        if not condition:
+            content = [html.P('Press \"Start data augmantation\" once the data augmentation list is completed')]
+        else:
+            ada = AudioDataAugmentator(16000, 1000)
+            for class_name in classifier_classes:
+                ada.set_dirpath(cfg.DATASET_PATH, class_name)
+                ada_manipulation_sequence = _ada_augmentation_sequence(augmentation_list)
+                print(f'Doing data augmentation on {class_name} files...')
+                ada.augment(ada_manipulation_sequence)
+            content = [html.H2('Audio data augmentation done!')]
+        return content
+
+
+    @app.callback(
+        Output('dummy', 'value'),
+        State('memory-classifier_classes', 'data'),
+        State('memory-background_classes', 'data'),
+        Input('submit-augmentation_add2list', 'n_clicks'))
+    def display_index_cache(classifier_classes, background_classes, n_clicks):
+        return 0
+    
