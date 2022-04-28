@@ -34,8 +34,7 @@ class AudioDataAugmentator:
         if file_name.split('.')[-1] == FORMAT]
 
 
-  def augment(self, manipulation_sequence):
-
+  def load_background(self, background_dir, manipulation_sequence):
     # initialize the background wave dictionary just in case
     # background injection is required
     # NOTE: it is a dictionary because there might be more than one
@@ -47,12 +46,26 @@ class AudioDataAugmentator:
       # check requred manipulation methods
       method, args = manipulation
       assert method in AVAILABLE_MANIPULATIONS
-      # load the required background files
-      if method == "background_injection":
-        background_dir = os.path.join(self.rootdir, args[1])
-        for background_filename in os.listdir(background_dir):
-          background_path = os.path.join(background_dir, background_filename)
-          self.background_wave_dict[background_path], _ = librosa.load(background_path, sr=self.sampling_rate, mono=True)
+      if method == 'background_injection':
+        # load the required background files in memory
+        if args[1] not in list(self.background_wave_dict.keys()):
+          background_subdir = os.path.join(background_dir, args[1])
+          background_subdir_listdir = os.listdir(background_subdir)
+          sizes = np.zeros(len(background_subdir_listdir), dtype=int)
+          for i, background_filename in enumerate(background_subdir_listdir):
+            path = os.path.join(background_subdir, background_filename)
+            aux, _ = librosa.load(path, sr=self.sampling_rate, mono=True)
+            sizes[i] = aux.shape[0]
+          self.background_wave_dict[args[1]] = np.zeros(sizes.sum())
+          left = 0
+          for i, background_filename in enumerate(background_subdir_listdir):
+            path = os.path.join(background_subdir, background_filename)
+            right = left + sizes[i]
+            self.background_wave_dict[args[1]][left:right], _ = librosa.load(path, sr=self.sampling_rate, mono=True)
+            left += sizes[i]
+
+
+  def augment(self, manipulation_sequence):
 
     # create a new directory for the augmented data
     new_dirpath = "{}_augmented".format(self.dirpath)
@@ -84,7 +97,7 @@ class AudioDataAugmentator:
             augmented_wave = self._noise_injection(args[0], args[1])
 
           if method == "background_injection":
-            augmented_wave = self._background_injection(args[0])
+            augmented_wave = self._background_injection(args[0], args[1])
 
           elif method == "gain_change":
             augmented_wave = self._gain_change(args[0])
@@ -119,9 +132,10 @@ class AudioDataAugmentator:
     return augmented_wave
 
 
-  def _background_injection(self, snr_db):
-    background_path = np.random.choice(list(self.background_wave_dict.keys()))
-    background_wave = self.background_wave_dict[background_path]
+  def _background_injection(self, snr_db, background_class):
+    #background_path = np.random.choice(list(self.background_wave_dict.keys()))
+    #background_wave = self.background_wave_dict[background_path]
+    background_wave = self.background_wave_dict[background_class]
     wave_len = self.wave.shape[0]
     background_wave_len = background_wave.shape[0]
     index_start_max = background_wave_len - wave_len
@@ -161,5 +175,17 @@ class AudioDataAugmentator:
 
   def _speed_change(self, speed_factor):
     return librosa.effects.time_stretch(self.wave, rate=speed_factor)
+
+
+if __name__ == '__main__':
+  ada = AudioDataAugmentator(16000, 1000)
+  manipulation_sequence = [
+    ['background_injection', [10, 'Music_Background']],
+    ['background_injection', [10, 'Safety_Noise']]
+  ]
+  ada.load_background('./assets/dataset', manipulation_sequence)
+  print(ada.background_wave_dict['Music_Background'].shape, ada.background_wave_dict['Music_Background'])
+  print(ada.background_wave_dict['Safety_Noise'].shape, ada.background_wave_dict['Safety_Noise'])
+  #ada.set_dirpath('./dataset', 'Tire')
 
   

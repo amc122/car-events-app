@@ -15,23 +15,18 @@ import diskcache
 
 from flask_caching import Cache
 
-import uuid
-
 import config.default as cfg
 import views
 import callbacks
 from utils import extract, metadata, featext
 
-app = Dash(__name__, external_stylesheets=[themes.BOOTSTRAP])
+
+cache = diskcache.Cache('./cache')
+long_callback_manager = DiskcacheLongCallbackManager(cache)
+app = Dash(__name__, 
+    external_stylesheets=[themes.BOOTSTRAP],
+    long_callback_manager=long_callback_manager)
 app.config['suppress_callback_exceptions'] = True
-cache = Cache(app.server, config={
-    'CACHE_TYPE': 'redis',
-    'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache'
-})
-# cache_long_callback = diskcache.Cache('./tmp')
-# cache = diskcache.Cache('./cache')
-#long_callback_manager = DiskcacheLongCallbackManager(cache)
 
 
 # TODO: move app setup to a different file

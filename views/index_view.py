@@ -144,11 +144,23 @@ def _audio_data_inspection_and_setup(class_names, file_names, featext_methods):
                     value=class_names
                 )
             ])
-        ], style={'width':'40%', 'padding-right':'5%', 'display':'inline-block'}),
+        ], style={'width':'30%', 'padding-right':'5%', 'display':'inline-block'}),
 
         html.Div([
-            html.H3('Background classes'),
-            html.P('Select classes included as classifier outputs'),
+            html.H3('Classes to be augmented'),
+            html.P('Select classes to be augmented'),
+            html.Div([
+                dbc.Checklist(
+                    id='checklist-augmentation_classes',
+                    options=class_names_options,
+                    value=class_names
+                )
+            ])
+        ], style={'width':'30%', 'padding-right':'5%', 'display':'inline-block'}),
+
+        html.Div([
+            html.H3('Data augmentation background noise'),
+            html.P('Select classes included as data augmentation background noise'),
             html.Div([
                 dbc.Checklist(
                     id='checklist-background_classes',
@@ -156,7 +168,7 @@ def _audio_data_inspection_and_setup(class_names, file_names, featext_methods):
                     value=[]
                 )
             ])
-        ], style={'width':'40%', 'padding-left':'5%', 'display':'inline-block'}),
+        ], style={'width':'30%', 'padding-left':'5%', 'display':'inline-block'}),
 
         html.Div([
             html.H3('Next step'),

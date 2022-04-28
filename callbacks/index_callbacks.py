@@ -82,9 +82,11 @@ def index_callbacks(app, cfg, df):
 
     @app.callback(
         Output('memory-classifier_classes', 'data'),
+        Output('memory-augmentation_classes', 'data'),
         Output('memory-background_classes', 'data'),
         State('checklist-classifier_classes', 'value'),
+        State('checklist-augmentation_classes', 'value'),
         State('checklist-background_classes', 'value'),
         Input('submit-index2aug', 'n_clicks'))
-    def update_cache_classifier_classes(classifier_classes, background_classes, n_clicks):
-        return classifier_classes, background_classes
+    def update_cache_classes(classifier_classes, augmentation_classes, background_classes, n_clicks):
+        return classifier_classes, augmentation_classes, background_classes

@@ -68,20 +68,39 @@ def augmentation_view(augmentation_options):
             html.Div(id='content-augmentation_weights')
         ]),
 
-        html.Div([
-            dcc.Loading(
-                id='loading-augmentation',
-                type='default',
-                children=html.Div(id='loading-augmentation_output')
-            )
-        ], style={'padding':5}),
+        # html.Div([
+        #     dcc.Loading(
+        #         id='loading-augmentation',
+        #         type='default',
+        #         children=html.Div(id='loading-augmentation_output')
+        #     )
+        # ], style={'padding':5}),
 
         html.Div([
-            dbc.Button('Start data augmentation',
-                id='submit-augmentation_start',
-                color='primary',
-                className='me-1'
-            )
+            html.Progress(id='progress-augmentation')
+        ], style={'padding':5}),
+
+        html.Div(id='alert-augmentation_process', style={'padding':5}),
+
+        html.Div([
+            dbc.Row([
+                dbc.Col(
+                    dbc.Button('Start data augmentation',
+                        id='submit-augmentation_start',
+                        color='primary',
+                        className='me-1'
+                    )
+                ),
+                dbc.Col(
+                    dcc.Link(
+                        dbc.Button('Back',
+                            id='submit-aug2index',
+                            color='primary',
+                            className='me-1'
+                        ), href='/'
+                    )
+                )
+            ])
         ], style={'padding':5})
 
     ], style={'width':common.PAGE_WIDTH, 'padding-left':'5%', 'padding-right':'5%', 'padding-top':50, 'padding-bottom':200})

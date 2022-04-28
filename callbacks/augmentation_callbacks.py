@@ -268,33 +268,55 @@ def augmentation_callbacks(app, cfg):
         return new_augmentation_list, content_augmentation_list, alert, 0, 0
 
 
-    @app.callback(
-        Output('loading-augmentation_output', 'children'),
-        State('memory-classifier_classes', 'data'),
+    @app.long_callback(
+        Output('alert-augmentation_process', 'children'),
+        State('memory-augmentation_classes', 'data'),
         State('memory-augmentation_list', 'data'),
-        Input('submit-augmentation_start', 'n_clicks'))
-    def start_augmentation(classifier_classes, augmentation_list, n_clicks):
-        condition = n_clicks is not None
-        if condition:
-            condition = n_clicks == 1
+        Input('submit-augmentation_start', 'n_clicks'),
+        running=[
+            (Output('submit-augmentation_start', 'disabled'), 
+                True, False),
+            (Output('progress-augmentation', 'style'), 
+                {'visibility':'visible'}, {'visibility':'hidden'})
+        ],
+        progress=[
+            Output('progress-augmentation', 'value'),
+            Output('progress-augmentation', 'max')
+        ],
+        prevent_initial_call=True)
+    def start_augmentation(set_progress, augmentation_classes, augmentation_list, n_clicks):
+        condition_init = n_clicks is not None
+        alert_before = dbc.Alert('Press \"Start data augmantation\" once the data augmentation list is completed', color='info')
+        alert_after = dbc.Alert('Audio data augmentation done!', color='success')
+        if condition_init:
+            n_clicks_aux = n_clicks
+        else:
+            n_clicks_aux = 0
+        condition_run = n_clicks_aux >= 1
+        condition = condition_init | condition_run
         if not condition:
-            content = [html.P('Press \"Start data augmantation\" once the data augmentation list is completed')]
+            if not condition_init:
+                alert_content = alert_before
+            else: # i.e. nore than one click
+                alert_content = alert_after
         else:
             ada = AudioDataAugmentator(16000, 1000)
-            for class_name in classifier_classes:
+            ada_manipulation_sequence = _ada_augmentation_sequence(augmentation_list)
+            ada.load_background(cfg.DATASET_PATH, ada_manipulation_sequence)
+            for i, class_name in enumerate(augmentation_classes):
                 ada.set_dirpath(cfg.DATASET_PATH, class_name)
-                ada_manipulation_sequence = _ada_augmentation_sequence(augmentation_list)
                 print(f'Doing data augmentation on {class_name} files...')
                 ada.augment(ada_manipulation_sequence)
-            content = [html.H2('Audio data augmentation done!')]
-        return content
+                set_progress((str(i+1), str(len(augmentation_classes))))
+            alert_content = alert_after
+        return alert_content, True
 
 
-    @app.callback(
-        Output('dummy', 'value'),
-        State('memory-classifier_classes', 'data'),
-        State('memory-background_classes', 'data'),
-        Input('submit-augmentation_add2list', 'n_clicks'))
-    def display_index_cache(classifier_classes, background_classes, n_clicks):
-        return 0
+    # @app.callback(
+    #     Output('dummy', 'value'),
+    #     State('memory-augmentation_classes', 'data'),
+    #     State('memory-background_classes', 'data'),
+    #     Input('submit-augmentation_add2list', 'n_clicks'))
+    # def display_index_cache(augmentation_classes, background_classes, n_clicks):
+    #     return 0
     

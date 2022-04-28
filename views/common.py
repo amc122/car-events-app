@@ -21,6 +21,7 @@ def header(title, text):
 def storage():
     return html.Div([
         dcc.Store(id='memory-classifier_classes', data=[], storage_type='local'),
+        dcc.Store(id='memory-augmentation_classes', data=[], storage_type='local'),
         dcc.Store(id='memory-background_classes', data=[], storage_type='local'),
         dcc.Store(id='memory-augmentation_list', data=[], storage_type='local'),
     ])
