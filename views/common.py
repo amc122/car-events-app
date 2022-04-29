@@ -5,7 +5,7 @@ TITLE = 'Audio data preprocessing'
 DESCRIPTION = '''
     A web application for audio data visualization and training with data augmentation.
     '''
-PAGE_WIDTH = 1200
+PAGE_WIDTH = 1400
 
 
 def header(title, text):

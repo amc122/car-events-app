@@ -3,10 +3,11 @@ import pandas as pd
 import torch
 import torchaudio
 
-def build_metadata(dir):
+def build_metadata(cfg):
+    dir = cfg.DATASET_PATH
     if dir[-1] != '/':
         dir += '/'
-    class_names = os.listdir(dir) # a class per folder
+    class_names = cfg.CLASS_NAMES #os.listdir(dir) # a class per folder
     file_names = [os.listdir(os.path.join(dir, subdir)) for subdir in class_names]
     # build basic metadata dataframe including class and file_name
     df_dict = {}

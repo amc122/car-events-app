@@ -13,7 +13,7 @@ from dash.long_callback import DiskcacheLongCallbackManager
 from dash_bootstrap_components import themes
 import diskcache
 
-from flask_caching import Cache
+#from flask_caching import Cache
 
 import config.default as cfg
 import views
@@ -22,7 +22,7 @@ from utils import extract, metadata, featext
 
 
 cache = diskcache.Cache('./cache')
-long_callback_manager = DiskcacheLongCallbackManager(cache)
+long_callback_manager = DiskcacheLongCallbackManager(cache) # TODO: move to Celery
 app = Dash(__name__, 
     external_stylesheets=[themes.BOOTSTRAP],
     long_callback_manager=long_callback_manager)
@@ -39,7 +39,7 @@ def setup(cfg):
     extract.extract_waves(cfg.COMPRESSED_DATA_DIR, compressed_file_names, cfg.DATASET_PATH, hash)
     print(' done')
     print('Building metadata...', end='')
-    df = metadata.build_metadata(cfg.DATASET_PATH)
+    df = metadata.build_metadata(cfg)
     print(' done')
     return df
 
@@ -94,6 +94,9 @@ def display_page(pathname):
         return augmentation_layout
     else:
         return index_layout
+
+
+
 
 
 if __name__ == '__main__':
