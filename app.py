@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import pandas as pd
 import torch
@@ -19,6 +20,9 @@ import config.default as cfg
 import views
 import callbacks
 from utils import extract, metadata, featext
+
+
+sys.setrecursionlimit(1500)
 
 
 cache = diskcache.Cache('./cache')
