@@ -289,9 +289,6 @@ def augmentation_callbacks(app, cfg):
         condition_init = n_clicks is not None
         alert_before = dbc.Alert('Press \"Start data augmantation\" once the data augmentation list is completed', color='info')
         alert_after = dbc.Alert('Audio data augmentation done!', color='success')
-
-        print(condition, condition_init)
-
         if condition_init:
             n_clicks_aux = n_clicks
         else:
