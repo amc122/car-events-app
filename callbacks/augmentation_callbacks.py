@@ -1,5 +1,6 @@
 import time
 import os
+import shutil
 from dash import Input, Output, State
 from dash import html, dcc, dash_table
 from dash.exceptions import PreventUpdate
@@ -267,6 +268,25 @@ def augmentation_callbacks(app, cfg):
                 ])]
 
         return new_augmentation_list, content_augmentation_list, alert, 0, 0
+
+
+    @app.callback(
+        Output('dummy', 'value'),
+        State('memory-classifier_classes', 'data'),
+        State('memory-augmentation_classes', 'data'),
+        Input('submit-get_augmented_dataset', 'n_clicks'),
+        prevent_initial_call=True)
+    def get_augmented_dataset(classifier_classes, augmentation_classes, n_clicks):
+        for cc in classifier_classes:
+            source = os.path.join(cfg.DATASET_PATH, cc)
+            dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, cc)
+            shutil.copytree(source, dest, dirs_exist_ok=True)
+        for ca in augmentation_classes:
+            source = os.path.join(cfg.DATASET_PATH, ca + '_augmented')
+            dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, ca + '_augmented')
+            if os.path.isdir(source):
+                shutil.copytree(source, dest, dirs_exist_ok=True)
+        return 0
 
 
     @app.long_callback(

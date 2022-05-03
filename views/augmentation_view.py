@@ -92,6 +92,13 @@ def augmentation_view(augmentation_options):
                     )
                 ),
                 dbc.Col(
+                    dbc.Button('Get augmented dataset',
+                        id='submit-get_augmented_dataset',
+                        color='primary',
+                        className='me-1'
+                    )
+                ),
+                dbc.Col(
                     dcc.Link(
                         dbc.Button('Back',
                             id='submit-aug2index',

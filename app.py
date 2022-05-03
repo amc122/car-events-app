@@ -33,6 +33,9 @@ app = Dash(__name__,
 app.config['suppress_callback_exceptions'] = True
 
 
+server = app.server
+
+
 # TODO: move app setup to a different file
 cfg.CLASS_NAMES = [
     'Safety_Noise', 'Safety_Negatives', 'Music_Background', 'CrashSWP', 'Tire'
@@ -105,5 +108,7 @@ def display_page(pathname):
 
 if __name__ == '__main__':
     app.run_server(
+        host='0.0.0.0',
+        port='8050',
         debug=True,
         dev_tools_hot_reload=False)

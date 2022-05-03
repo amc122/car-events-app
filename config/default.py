@@ -7,7 +7,7 @@ COMPRESSED_DATA_VERSION = 'latest'
 CLASS_NAMES = []
 
 DATASET_PATH = 'assets/dataset'
-DATASET_AUGMENTATION_PATH = 'assets/dataset_augmented'
+DATASET_AUGMENTATION_PATH = '../data_augmented'
 DATASET_VERSION = 'default'
 
 
