@@ -27,3 +27,4 @@ COPY AudioDataAugmentator.py /app
 # start at /app directory when running
 WORKDIR /app
 # run the app with gunicorn
+CMD gunicorn -b 0.0.0.0:8050 app:server
