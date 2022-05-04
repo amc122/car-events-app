@@ -7,10 +7,10 @@ Simple application for data inspection and machine learning applied to car event
 docker build -t <name>:<tag> -f Dockerfile .
 ```
 
-Example:
+or simply:
 
 ```
-docker build -t carsoundapp:v0 -f Dockerfile .
+source docker_build.sh
 ```
 
 ## Run instructions using the Docker image
@@ -22,14 +22,10 @@ docker run -it --rm --gpus all \
     -p 8050:8050 <name>:<tag>
 ```
 
-Example:
+or simply:
 
 ```
-cd ..
-docker run -it --rm --gpus all \
-    -v ($pwd)/data_rootdir:/data_rootdir 
-    -v ($pwd)/data_augmented:/data_augmented
-    -p 8050:8050 carsoundapp:v0
+source docker_run.sh
 ```
 
 ## 
