@@ -271,12 +271,13 @@ def augmentation_callbacks(app, cfg):
 
 
     @app.callback(
-        Output('dummy', 'value'),
+        Output('download-data_augmented_zip', 'data'),
         State('memory-classifier_classes', 'data'),
         State('memory-augmentation_classes', 'data'),
         Input('submit-get_augmented_dataset', 'n_clicks'),
         prevent_initial_call=True)
     def get_augmented_dataset(classifier_classes, augmentation_classes, n_clicks):
+        # save the data in the augmentation folder
         for cc in classifier_classes:
             source = os.path.join(cfg.DATASET_PATH, cc)
             dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, cc)
@@ -286,7 +287,15 @@ def augmentation_callbacks(app, cfg):
             dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, ca + '_augmented')
             if os.path.isdir(source):
                 shutil.copytree(source, dest, dirs_exist_ok=True)
-        return 0
+        # compress the data 
+        shutil.make_archive('data_augmented', 'zip', cfg.DATASET_AUGMENTATION_PATH)
+        # clear directory
+        listdir = os.listdir(cfg.DATASET_AUGMENTATION_PATH)
+        if len(listdir) > 0:
+            for subdir in listdir:
+                shutil.rmtree(os.path.join(cfg.DATASET_AUGMENTATION_PATH), subdir)
+        
+        return dcc.send_file('data_augmented.zip')
 
 
     @app.long_callback(

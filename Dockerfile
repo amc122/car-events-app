@@ -24,11 +24,8 @@ COPY utils /app/utils
 COPY views /app/views
 COPY app.py /app
 COPY AudioDataAugmentator.py /app
-<<<<<<< HEAD
-# download example dataset
+# copy full dataset
 COPY tmp data_rootdir
-=======
->>>>>>> bb91e8e7c0069ed8714f4febffb9f6a3370d18ff
 # start at /app directory when running
 WORKDIR /app
 # run the app with gunicorn

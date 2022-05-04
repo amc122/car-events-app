@@ -106,7 +106,8 @@ def augmentation_view(augmentation_options):
                             className='me-1'
                         ), href='/'
                     )
-                )
+                ),
+                dcc.Download(id='download-data_augmented_zip')
             ])
         ], style={'padding':5})
 
