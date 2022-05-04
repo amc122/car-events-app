@@ -1,7 +1,7 @@
 # car-events-app
 Simple application for data inspection and machine learning applied to car events audio.
 
-## Build instructions using the Dockerfile
+## Build app using the Dockerfile
 
 ```
 docker build -t <name>:<tag> -f Dockerfile .
@@ -13,7 +13,7 @@ or simply:
 source docker_build.sh
 ```
 
-## Run instructions using the Docker image
+## Run app using the Docker image
 
 ```
 docker run -it --rm --gpus all \
