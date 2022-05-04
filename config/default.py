@@ -1,13 +1,13 @@
 ###########
 # dataset #
 ###########
-COMPRESSED_DATA_DIR = 'GlobalSenseData'#'/home/hdd/Datasets/Audio/GlobalSense'
+COMPRESSED_DATA_DIR = '../data_rootdir'#'/home/hdd/Datasets/Audio/GlobalSense'
 COMPRESSED_DATA_VERSION = 'latest'
 
 CLASS_NAMES = []
 
 DATASET_PATH = 'assets/dataset'
-DATASET_AUGMENTATION_PATH = 'assets/dataset_augmented'
+DATASET_AUGMENTATION_PATH = '../data_augmented'
 DATASET_VERSION = 'default'
 
 
