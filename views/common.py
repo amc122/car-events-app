@@ -1,3 +1,4 @@
+import base64
 from dash import html, dcc
 
 
@@ -15,6 +16,12 @@ def header(title, text):
             children=[html.Div(title, className='app-header--title')]
         ),
         html.Div([text], style={'padding-top': 20, 'padding-bottom':20})
+    ])
+
+
+def logo():
+    return html.Div([
+        html.Img(src='/assets/globalsense_logo.png', style={'width':200})
     ])
 
 

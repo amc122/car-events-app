@@ -194,6 +194,7 @@ def index_view(fig_class_histogram, fig_duration_histogram, fig_power_histogram,
     class_names, file_names, featext_methods):
     return html.Div([
         common.my_header(),
+        common.logo(),
         _overview(),
         _metadata_inspection(fig_class_histogram, fig_duration_histogram, fig_power_histogram),
         _audio_data_inspection_and_setup(class_names, file_names, featext_methods),

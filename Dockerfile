@@ -18,6 +18,7 @@ RUN mkdir assets/dataset
 RUN mkdir cache
 COPY assets/header.css /app/assets/
 COPY assets/typography.css /app/assets/
+COPY assets/globalsense_logo.png /app/assets/
 COPY config /app/config
 COPY callbacks /app/callbacks
 COPY utils /app/utils
