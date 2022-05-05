@@ -1,6 +1,8 @@
 import time
 import os
 import shutil
+from tqdm import tqdm
+import zipfile
 from dash import Input, Output, State
 from dash import html, dcc, dash_table
 from dash.exceptions import PreventUpdate
@@ -182,6 +184,25 @@ def _ada_augmentation_sequence(augmentation_list):
     return sequence
 
 
+def _zipdir(root, folds, ziph):
+    print('Compressing data...')
+    for fold in folds:
+        print('Compressing {}...'.format(fold))
+        for file in tqdm(os.listdir(os.path.join(root, fold))):
+            source_path = os.path.join(root, fold, file)
+            ziph.write(source_path, os.path.relpath(source_path, os.path.join(root, '..')))
+
+
+def _rmdir(dir):
+    assert dir != '/'
+    for root, dirs, files in os.walk(dir, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
+    os.rmdir(dir)
+
+
 def augmentation_callbacks(app, cfg):
 
     @app.callback(
@@ -277,25 +298,18 @@ def augmentation_callbacks(app, cfg):
         Input('submit-get_augmented_dataset', 'n_clicks'),
         prevent_initial_call=True)
     def get_augmented_dataset(classifier_classes, augmentation_classes, n_clicks):
-        # save the data in the augmentation folder
-        for cc in classifier_classes:
-            source = os.path.join(cfg.DATASET_PATH, cc)
-            dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, cc)
-            shutil.copytree(source, dest, dirs_exist_ok=True)
-        for ca in augmentation_classes:
-            source = os.path.join(cfg.DATASET_PATH, ca + '_augmented')
-            dest = os.path.join(cfg.DATASET_AUGMENTATION_PATH, ca + '_augmented')
-            if os.path.isdir(source):
-                shutil.copytree(source, dest, dirs_exist_ok=True)
-        # compress the data 
-        shutil.make_archive('data_augmented', 'zip', cfg.DATASET_AUGMENTATION_PATH)
-        # clear directory
-        listdir = os.listdir(cfg.DATASET_AUGMENTATION_PATH)
-        if len(listdir) > 0:
-            for subdir in listdir:
-                shutil.rmtree(os.path.join(cfg.DATASET_AUGMENTATION_PATH), subdir)
-        
-        return dcc.send_file('data_augmented.zip')
+        if n_clicks is None:
+            return None
+        else:
+            # compress the dataset
+            classifier_folds = classifier_classes
+            augmentation_folds = [ac + '_augmented' for ac in augmentation_classes]
+            folds = classifier_folds + augmentation_folds
+            with zipfile.ZipFile('dataset.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
+                _zipdir(cfg.DATASET_PATH, folds, zipf)
+            # download the dataset
+
+            return dcc.send_file('dataset.zip')
 
 
     @app.long_callback(
@@ -330,6 +344,11 @@ def augmentation_callbacks(app, cfg):
             else: # i.e. nore than one click
                 alert_content = alert_after
         else:
+            # clean previously augmented data
+            for ac in augmentation_classes:
+                dir_to_delete = os.path.join(cfg.DATASET_PATH, ac + '_augmented')
+                _rmdir(dir_to_delete)
+            # do the augmentation
             ada = AudioDataAugmentator(16000, 1000)
             ada_manipulation_sequence = _ada_augmentation_sequence(augmentation_list)
             ada.load_background(cfg.DATASET_PATH, ada_manipulation_sequence)

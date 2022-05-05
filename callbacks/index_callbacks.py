@@ -7,15 +7,18 @@ from dash import Input, Output, State
 
 from utils import featext
 
+DROPDOWN_MAX_SIZE = 100
 
 def index_callbacks(app, cfg, df):
 
 
-    @app.callback(
+    @app.long_callback(
         Output('dropdown-file_name', 'options'),
         Input('dropdown-class', 'value'))
     def update_dropdown_file_name(class_name):
         options = df['file_name'].loc[df['class'] == class_name]
+        if len(options) > DROPDOWN_MAX_SIZE:
+            options = options.head(DROPDOWN_MAX_SIZE)
         return [{'label':s, 'value':s} for s in options]
 
 

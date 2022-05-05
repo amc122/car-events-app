@@ -1,1 +1,1 @@
-gunicorn -b 0.0.0.0:8050 app:server
+gunicorn -b 0.0.0.0:8050 app:server --timeout 200
