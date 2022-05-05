@@ -64,6 +64,8 @@ Finally, verify you can use docker in the WSL distro using the following command
 docker --version
 ```
 
+Once
+
 
 ## Build app using the Dockerfile
 
