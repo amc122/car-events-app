@@ -51,13 +51,13 @@ Install Docker Desktop:
 
 https://docs.docker.com/desktop/windows/install/
 
-## Step 3
+### Step 3
 
 Once Docker Desktop is installed, enable WSL integration with your WSL Ubuntu distro:
 
 https://docs.docker.com/desktop/windows/wsl/
 
-## Step 4
+### Step 4
 
 Finally, verify you can use docker in the WSL distro using the following command:
 ```
