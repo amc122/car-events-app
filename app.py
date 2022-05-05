@@ -28,8 +28,10 @@ sys.setrecursionlimit(1500)
 cache = diskcache.Cache('./cache')
 long_callback_manager = DiskcacheLongCallbackManager(cache) # TODO: move to Celery
 app = Dash(__name__, 
+    title='Audio data preprocessing',
     external_stylesheets=[themes.BOOTSTRAP],
     long_callback_manager=long_callback_manager)
+#app._favicon = ('favicon.ico')
 app.config['suppress_callback_exceptions'] = True
 
 

@@ -347,7 +347,8 @@ def augmentation_callbacks(app, cfg):
             # clean previously augmented data
             for ac in augmentation_classes:
                 dir_to_delete = os.path.join(cfg.DATASET_PATH, ac + '_augmented')
-                _rmdir(dir_to_delete)
+                if os.path.isdir(dir_to_delete):
+                    _rmdir(dir_to_delete)
             # do the augmentation
             ada = AudioDataAugmentator(16000, 1000)
             ada_manipulation_sequence = _ada_augmentation_sequence(augmentation_list)

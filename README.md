@@ -64,10 +64,18 @@ Finally, verify you can use docker in the WSL distro using the following command
 docker --version
 ```
 
-Once
+Then, you can build the Docker image using the Dockerfile.
 
 
 ## Build app using the Dockerfile
+
+In order to build the docker image using the Dockerfile, we first need to download the dataset:
+
+```
+source get_dataset.sh
+```
+
+Then, build the Docker image using the Dockerfile:
 
 ```
 docker build -t <name>:<tag> -f Dockerfile .
@@ -79,19 +87,24 @@ or simply:
 source docker_build.sh
 ```
 
-## Run app using the Docker image
+## Run app using a Docker container
 
 ```
-docker run -it --rm --gpus all \
-    -v <absolute path to source data dir>:/data_rootdir 
-    -v <absolute path to output augmented data dir>:/data_augmented
-    -p 8050:8050 <name>:<tag>
+docker run -it --rm --gpus all -p 8050:8050 <name>:<tag>
 ```
 
 or simply:
 
 ```
 source docker_run.sh
+```
+
+Optionally, you can add your own dataset files to the container:
+
+```
+docker run -it --rm --gpus all \
+    -v <absolute path to source data dir>:/data_rootdir
+    -p 8050:8050 <name>:<tag>
 ```
 
 ## 

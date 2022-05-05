@@ -19,6 +19,7 @@ RUN mkdir cache
 COPY assets/header.css /app/assets/
 COPY assets/typography.css /app/assets/
 COPY assets/globalsense_logo.png /app/assets/
+COPY assets/favicon.ico /app/assets/
 COPY config /app/config
 COPY callbacks /app/callbacks
 COPY utils /app/utils
@@ -30,4 +31,4 @@ COPY tmp data_rootdir
 # start at /app directory when running
 WORKDIR /app
 # run the app with gunicorn
-CMD gunicorn -b 0.0.0.0:8050 app:server
+CMD gunicorn -b 0.0.0.0:8050 app:server --timeout 200
